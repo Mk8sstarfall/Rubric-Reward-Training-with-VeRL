@@ -1,0 +1,64 @@
+# Rubric Rewards GRPO Training Configuration
+# Based on paper: Training AI Co-Scientists Using Rubric Rewards (arXiv:2512.23707)
+
+data:
+  dataset_name: "facebook/research-plan-gen"
+  subset: "ml"
+  train_file: "data/ml_train.parquet"
+  val_file: "data/ml_test.parquet"
+  max_prompt_length: 2048
+  max_response_length: 2048
+  train_batch_size: 64
+
+model:
+  actor_path: "/root/autodl-tmp/models/Qwen3-4B-Instruct-2507"
+  trust_remote_code: true
+
+grader:
+  api_base: "http://localhost:8000/v1"
+  model_name: "/root/autodl-tmp/models/Qwen3-30B-A3B-Instruct-2507"
+  temperature: 0.7
+  max_tokens: 8192
+  timeout: 300
+
+algorithm:
+  name: "grpo"
+  gamma: 1.0
+  lam: 1.0
+  use_kl_in_reward: false
+  kl_ctrl:
+    type: "fixed"
+    kl_coef: 0.0
+
+actor:
+  learning_rate: 1.0e-6
+  grad_clip: 1.0
+  use_kl_loss: false
+  entropy_coeff: 0.0
+  clip_ratio: 0.2
+  loss_agg_mode: "token-mean"
+  ppo_epochs: 1
+  ppo_mini_batch_size: 64
+  ppo_micro_batch_size_per_gpu: 8
+
+rollout:
+  engine: "vllm"
+  n: 8
+  temperature: 0.7
+  top_p: 1.0
+  tensor_model_parallel_size: 1
+  gpu_memory_utilization: 0.7
+  log_prob_micro_batch_size_per_gpu: 16
+  max_model_len: 8192
+
+trainer:
+  total_epochs: 1
+  project_name: "rubric-rewards"
+  experiment_name: "grpo-ml"
+  logger: ["console", "wandb"]
+  save_freq: 20
+  test_freq: 10
+  val_before_train: true
+  checkpoint_dir: "outputs/checkpoints"
+  n_gpus_per_node: 4
+  nnodes: 1
