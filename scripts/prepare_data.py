@@ -4,6 +4,7 @@ import pandas as pd
 from pathlib import Path
 from datasets import load_dataset
 from utils import convert_to_verl_format, ensure_dir, setup_logger, get_project_root
+from typing import cast, Dict, Any
 
 logger = setup_logger("prepare_data")
 
@@ -17,8 +18,8 @@ def download_and_convert(subset: str = "ml", output_dir: str = "data", max_train
     train = ds['train'].select(range(min(max_train, len(ds['train'])))) if max_train > 0 else ds['train']
     test = ds['test'].select(range(min(max_test, len(ds['test'])))) if max_test > 0 else ds['test']
     
-    train_recs = [convert_to_verl_format(item, f"research_plan_gen_{subset}") for item in train]
-    test_recs = [convert_to_verl_format(item, f"research_plan_gen_{subset}") for item in test]
+    train_recs = [convert_to_verl_format(cast(Dict[str, Any], item), f"research_plan_gen_{subset}") for item in train]
+    test_recs = [convert_to_verl_format(cast(Dict[str, Any], item), f"research_plan_gen_{subset}") for item in test]
     
     pd.DataFrame(train_recs).to_parquet(out / f"{subset}_train.parquet", index=False)
     pd.DataFrame(test_recs).to_parquet(out / f"{subset}_test.parquet", index=False)

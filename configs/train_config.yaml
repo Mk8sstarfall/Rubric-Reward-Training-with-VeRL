@@ -59,6 +59,6 @@ trainer:
   save_freq: 20
   test_freq: 10
   val_before_train: true
-  checkpoint_dir: "outputs/checkpoints"
+  checkpoint_dir: "outputs/asnyc_checkpoints"
   n_gpus_per_node: 4
   nnodes: 1
